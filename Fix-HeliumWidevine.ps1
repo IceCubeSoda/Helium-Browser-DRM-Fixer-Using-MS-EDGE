@@ -1,6 +1,6 @@
 # =====================================================================
-# Helium Browser Widevine CDM Fixer (Universal)
-# Repository: https://github.com/IceCubeSoda/Helium-Browser-DRM-Fixer-Using-MS-EDGE
+# Helium DRM Fixer (Universal)
+# Repository: https://github.com/IceCubeSoda/Helium-DRM-Fixer
 # Author: IceCubeSoda
 # =====================================================================
 
@@ -34,11 +34,22 @@ if (-not (Test-Path $HeliumDataPath)) {
 
 Write-Host "`n[+] Helium installation verified at: $HeliumDataPath" -ForegroundColor Green
 
-# 2. Close running Helium instances to release file locks
-$HeliumProcesses = Get-Process -Name "helium" -ErrorAction SilentlyContinue
-if ($HeliumProcesses) {
-    Write-Host "[+] Closing active Helium browser processes..." -ForegroundColor Yellow
-    Stop-Process -Name "helium" -Force
+# 2. Kill all background browser processes to release file locks
+Write-Host "[+] Ensuring no Helium or background processes are holding file locks..." -ForegroundColor Yellow
+
+$TargetProcesses = Get-Process | Where-Object { 
+    $_.Name -match "helium|imput" -or 
+    ($_.Path -and $_.Path -like "*Helium*")
+} -ErrorAction SilentlyContinue
+
+if ($TargetProcesses) {
+    foreach ($Proc in $TargetProcesses) {
+        try {
+            Stop-Process -Id $Proc.Id -Force -ErrorAction SilentlyContinue
+        } catch {
+            # Ignore process termination errors
+        }
+    }
     Start-Sleep -Seconds 2
 }
 
@@ -104,15 +115,25 @@ $HeliumWidevineBase = Join-Path $HeliumDataPath "WidevineCdm"
 $TargetVersionDir   = Join-Path $HeliumWidevineBase $SelectedSource.RawVer
 
 if (Test-Path $TargetVersionDir) {
-    Write-Host "[+] Existing version folder found. Cleaning up before copy..." -ForegroundColor Yellow
-    Remove-Item $TargetVersionDir -Recurse -Force
+    Write-Host "[+] Target version directory exists. Attempting clean copy..." -ForegroundColor Yellow
+    try {
+        Remove-Item $TargetVersionDir -Recurse -Force -ErrorAction Stop
+    } catch {
+        Write-Host "[!] Could not perform full deletion (file locked). Falling back to direct file overwrite..." -ForegroundColor Yellow
+    }
 }
 
 New-Item -ItemType Directory -Path $TargetVersionDir -Force | Out-Null
 
 # 6. Copy Files
 Write-Host "[+] Copying Widevine CDM binaries to Helium structure..." -ForegroundColor Cyan
-Copy-Item -Path "$($SelectedSource.Path)\*" -Destination $TargetVersionDir -Recurse -Force
+try {
+    Copy-Item -Path "$($SelectedSource.Path)\*" -Destination $TargetVersionDir -Recurse -Force -ErrorAction Stop
+} catch {
+    Write-Host "`n[!] Copy failed due to active file lock: $_" -ForegroundColor Red
+    Write-Host "[!] Please manually close Helium Browser completely and re-run this script." -ForegroundColor Red
+    exit 1
+}
 
 # 7. Verification Phase
 $RequiredFiles = @(
@@ -137,7 +158,7 @@ Write-Host " Target: $TargetVersionDir" -ForegroundColor Yellow
 Write-Host "====================================================" -ForegroundColor Green
 
 Write-Host "`nMade with <3 by IceCubeSoda" -ForegroundColor Magenta
-Write-Host "GitHub Repo: https://github.com/IceCubeSoda/Helium-Browser-DRM-Fixer-Using-MS-EDGE" -ForegroundColor DarkCyan
+Write-Host "GitHub Repo: https://github.com/IceCubeSoda/Helium-DRM-Fixer" -ForegroundColor DarkCyan
 
 Write-Host "`nNext Steps:" -ForegroundColor Cyan
 Write-Host " 1. Launch Helium Browser." -ForegroundColor White
