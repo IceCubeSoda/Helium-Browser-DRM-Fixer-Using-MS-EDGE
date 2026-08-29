@@ -1,97 +1,119 @@
+<div align="center">
+
 # 🦊 Helium DRM Fixer
 
-[![GitHub license](https://img.shields.io/github/license/IceCubeSoda/Helium-DRM-Fixer)](https://github.com/IceCubeSoda/Helium-DRM-Fixer/blob/main/LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-blue.svg)](https://microsoft.com)
-[![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
+**A dynamic, version-independent utility to restore Widevine DRM playback in Helium Browser.**
 
-An automated, version-independent PowerShell script designed to resolve missing **Widevine Content Decryption Module (CDM)** issues in **Helium Browser**. It dynamically extracts signed Widevine binaries from Microsoft Edge and installs them into Helium's User Data environment.
-
----
-
-## ❓ Why Is Widevine DRM Broken in Helium Browser?
-
-Like many custom Chromium forks, **Helium Browser** cannot legally distribute proprietary Google Widevine binaries out of the box. 
-
-Without Widevine installed:
-* Navigating to `chrome://components` shows **Widevine Content Decryption Module** stuck at version `0.0.0.0`.
-* Streaming services (Spotify Web, Netflix, Amazon Prime Video, Disney+, Hulu, HBO Max) fail with error messages like *"Enable DRM in your browser"* or *"Playback Error"*.
+[![GitHub license](https://img.shields.io/github/license/IceCubeSoda/Helium-DRM-Fixer?style=for-the-badge&color=ff7b00)](https://github.com/IceCubeSoda/Helium-DRM-Fixer/blob/main/LICENSE)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gG4HY9ZkMW)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078d4?style=for-the-badge&logo=windows)](https://microsoft.com)
+[![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell)](https://github.com/PowerShell/PowerShell)
 
 ---
 
-## 💡 How This Script Solves It
+</div>
 
-This script connects Helium with the officially signed Widevine CDM binaries already present in your **Microsoft Edge** installation:
+## ❓ The Problem
 
-1. **Dynamic Version Detection:** Reads `manifest.json` from Microsoft Edge—**works regardless of what version Edge or Widevine is on**.
-2. **Automated Folder Construction:** Dynamically builds the proper versioned directory path in Helium's `User Data\WidevineCdm` directory.
-3. **File Verification:** Transfers and verifies required files (`widevinecdm.dll`, `.sig`, `manifest.json`).
-4. **Execution Policy Handshake:** Includes built-in bypass routines to eliminate `PSSecurityException` script blocking errors.
+Third-party Chromium forks like **Helium Browser** cannot legally bundle proprietary Google Widevine DRM binaries out of the box. 
 
----
-
-## ⚡ Installation & Execution
-
-### Method 1: Direct PowerShell One-Liner (Recommended)
-
-Open **PowerShell** (no Administrator rights required) and run:
-
-    iwr -useb https://raw.githubusercontent.com/IceCubeSoda/Helium-DRM-Fixer/main/Fix-HeliumWidevine.ps1 | iex
+Without Widevine:
+* `helium://components` displays **Widevine Content Decryption Module** stuck at version `0.0.0.0`.
+* Major web services like **Spotify Web, Netflix, Disney+, Amazon Prime Video, and Hulu** fail with errors like *"Enable DRM in your browser"* or *"Playback Error"*.
 
 ---
 
-### Method 2: Manual Clone / Download
+## 💡 The Solution
 
-1. Clone or download the repository:
+This utility bridges Helium with the official, signed Widevine binaries pre-installed on your system via **Microsoft Edge**:
 
-    git clone https://github.com/IceCubeSoda/Helium-DRM-Fixer.git
+* ⚡ **100% Dynamic:** Reads manifest parameters automatically—**works regardless of future Edge or Widevine updates**.
+* 🧹 **Process Manager:** Automatically terminates locked background tasks to ensure clean installations.
+* 🛡️ **Zero Administrative Rights Required:** Operates strictly within user-level directories without system-wide file modifications.
+* 🔓 **Bypass Integration:** Handles PowerShell `ExecutionPolicy` routines automatically.
 
-2. Open PowerShell inside the folder:
+---
 
-    cd "Helium-DRM-Fixer"
+## ⚡ Quick Start / Installation
+
+### Method 1: One-Liner Execution (Fastest)
+
+Open **PowerShell** and run the following command directly:
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/IceCubeSoda/Helium-DRM-Fixer/main/Fix-HeliumWidevine.ps1 | iex
+```
+
+---
+
+### Method 2: Manual Installation
+
+1. Clone or download this repository:
+   ```bash
+   git clone https://github.com/IceCubeSoda/Helium-DRM-Fixer.git
+   ```
+
+2. Navigate into the repository folder:
+   ```powershell
+   cd Helium-DRM-Fixer
+   ```
 
 3. Execute the script:
+   ```powershell
+   .\Fix-HeliumWidevine.ps1
+   ```
 
-    .\Fix-HeliumWidevine.ps1
-
-> 💡 **Execution Policy Note:** If Windows blocks the script execution, the script automatically attempts a process-level bypass. You can also manually unblock it using:
->
->     Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+> [!NOTE]  
+> If Windows blocks script execution, the script automatically attempts a process-level policy override. You can also manually grant execution rights for your current window:
+> ```powershell
+> Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+> ```
 
 ---
 
-## 🔍 Verifying the Fix
+## 🔍 Verification Step
 
-1. Close and reopen **Helium Browser**.
-2. Type `chrome://components` in the address bar and press **Enter**.
-3. Locate **Widevine Content Decryption Module**.
-4. Check that the version has updated from `0.0.0.0` to an active version (e.g., `4.10.x.x`).
-5. Open [Spotify Web Player](https://open.spotify.com) or [Netflix](https://netflix.com) to start streaming.
+| Step | Action |
+| :--- | :--- |
+| **1. Launch** | Open **Helium Browser**. |
+| **2. Navigate** | Type `helium://components` into the address bar and hit **Enter**. |
+| **3. Confirm** | Locate **Widevine Content Decryption Module**. Verify version has updated from `0.0.0.0` to an active string (e.g., `4.10.x.x`). |
+| **4. Stream** | Visit [Spotify Web Player](https://open.spotify.com) or [Netflix](https://netflix.com) to enjoy uninterrupted audio & video. |
 
 ---
 
 ## ❓ Frequently Asked Questions (FAQ)
 
-### Will this script work after Microsoft Edge or Helium updates?
-**Yes.** The script does not rely on hardcoded version numbers. It dynamically checks for the newest Widevine release installed on your system every time it runs.
+<details>
+<summary><b>Will this script work after Microsoft Edge or Helium updates?</b></summary>
+<br>
+<b>Yes.</b> The script avoids hardcoded version strings. It dynamically detects and extracts whichever Widevine release is currently installed on your PC every time it is run.
+</details>
 
-### Do I need Microsoft Edge installed?
-**Yes.** The script uses Edge as a trusted local source for signed Widevine CDM binaries. Edge is pre-installed on Windows 10 and 11 by default.
+<details>
+<summary><b>Do I need Microsoft Edge installed?</b></summary>
+<br>
+<b>Yes.</b> The script uses Edge as a secure local source for signed Widevine binaries. Edge comes pre-installed by default on Windows 10 and Windows 11.
+</details>
 
-### Is this safe to run?
-**Yes.** The script is 100% open-source, local, and transparent. It only copies files between official directories on your local drive and requires no administrative privileges.
+<details>
+<summary><b>Is this safe to run?</b></summary>
+<br>
+<b>100% Yes.</b> The entire script is open-source, local, and fully transparent. It strictly copies binaries between official local directories and requires no elevation or external downloads outside of your local drive.
+</details>
 
 ---
 
-## 🛡️ Compatibility
+## 💬 Community & Support
 
-* **Operating System:** Windows 10 / Windows 11 (64-bit)
-* **Target Browser:** Helium Browser
-* **Source Browser:** Microsoft Edge (Standard Installation)
+Got questions, ran into a bug, or want to hang out with fellow developers?
+
+[![Join Discord](https://img.shields.io/badge/Join%20Our%20Discord%20Server-5865F2?style=for-the-badge&logo=discord&logoColor=white)]([https://discord.gg/gG4HY9ZkMW](https://discord.gg/gG4HY9ZkMW))
+
+Feel free to open an **Issue** or submit a **Pull Request** right here on GitHub!
 
 ---
 
-## 🤝 Contributing
-
-Bug reports, suggestions, and pull requests are welcome! If this script helped you, give the repository a ⭐️ to help others find it.
-
-Crafted by [IceCubeSoda](https://github.com/IceCubeSoda)
+<div align="center">
+Crafted with ❤️ by <b><a href="[https://github.com/IceCubeSoda](https://github.com/IceCubeSoda)">IceCubeSoda</a></b>
+</div>
